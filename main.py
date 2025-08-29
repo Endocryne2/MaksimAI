@@ -28,13 +28,19 @@ bot.remove_command("help")
 # Настройки
 CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY")
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-CEREBRAS_API_URL = "https://api.cerebras.ai/v1/chat/completions"
 BOT_API_KEY = os.getenv("BOT_API_KEY")
+CEREBRAS_API_URL = "https://api.cerebras.ai/v1/chat/completions"
 WARNINGS = {}
 USER_MESSAGES = {}
 ROLE_DURATION = 86400
 ACTIVE_ROLE_NAME = "Легенда 228"
 HELP_REMINDER_INTERVAL = 7200
+
+# Проверка переменных окружения
+print("Starting bot... Environment variables:")
+print(f"DISCORD_BOT_TOKEN: {'Set' if DISCORD_BOT_TOKEN else 'Not set'}")
+print(f"CEREBRAS_API_KEY: {'Set' if CEREBRAS_API_KEY else 'Not set'}")
+print(f"BOT_API_KEY: {'Set' if BOT_API_KEY else 'Not set'}")
 
 # Вопросы для викторины
 QUIZ_QUESTIONS = {
@@ -87,6 +93,9 @@ def save_user_messages():
 
 # Cerebras API
 async def get_cerebras_response(prompt, is_retry=False, is_moderation=False):
+    if not CEREBRAS_API_KEY:
+        logging.error("CEREBRAS_API_KEY не установлен")
+        return "Ошибка: Ключ Cerebras API не настроен!"
     headers = {
         "Authorization": f"Bearer {CEREBRAS_API_KEY}",
         "Content-Type": "application/json"
@@ -242,10 +251,13 @@ async def handle_command(request):
         logging.error(f"Ошибка при выполнении команды: {e}")
         return web.json_response({"error": str(e)}, status=500)
 
-# Запуск HTTP-сервера
+# HTTP-сервер с health check
 async def start_http_server():
     app = web.Application()
-    app.add_routes([web.post('/command', handle_command)])
+    app.add_routes([
+        web.post('/command', handle_command),
+        web.get('/', lambda _: web.json_response({"message": "Bot is online"})
+    ])
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, '0.0.0.0', 8000)
@@ -400,5 +412,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logging.info("Бот остановлен пользователем")
     except Exception as e:
-
         logging.error(f"Критическая ошибка: {e}")
