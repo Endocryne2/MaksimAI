@@ -60,7 +60,7 @@ def load_warnings():
         logging.info("Предупреждения загружены успешно")
     except FileNotFoundError:
         WARNINGS = {}
-        logging.info("Файл warnings.json не найден, создан пустой словарь предупреждений")
+        logging.info("Файл warnings.json не найден, создан пустой словарь")
 
 # Сохранение предупреждений
 def save_warnings():
@@ -256,7 +256,7 @@ async def start_http_server():
     app = web.Application()
     app.add_routes([
         web.post('/command', handle_command),
-        web.get('/', lambda _: web.json_response({"message": "Bot is online"})
+        web.get('/', lambda _: web.json_response({"message": "Bot is online"}))
     ])
     runner = web.AppRunner(app)
     await runner.setup()
@@ -407,9 +407,4 @@ async def main():
         raise
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logging.info("Бот остановлен пользователем")
-    except Exception as e:
-        logging.error(f"Критическая ошибка: {e}")
+    asyncio.run(main())
