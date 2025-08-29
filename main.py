@@ -7,6 +7,7 @@ import json
 from datetime import datetime, timedelta
 from aiohttp import web
 import random
+import os
 
 # Логи
 logging.basicConfig(
@@ -25,10 +26,10 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 bot.remove_command("help")
 
 # Настройки
-CEREBRAS_API_KEY = "csk-2jkkrnwd68dx2fed2p4myf82xd4thvv28hcjk85wepjt43e2"  # Проверьте ключ!
-DISCORD_BOT_TOKEN = "MTQxMDY1MzU0ODQ3OTI1MDYxNA.GS22BF.hPfBs61sZSqgemFNynCXcKya0u0sQSf4mvtxng"
+CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY")
+DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 CEREBRAS_API_URL = "https://api.cerebras.ai/v1/chat/completions"
-BOT_API_KEY = "your_bot_api_key"
+BOT_API_KEY = os.getenv("BOT_API_KEY")
 WARNINGS = {}
 USER_MESSAGES = {}
 ROLE_DURATION = 86400
@@ -399,4 +400,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logging.info("Бот остановлен пользователем")
     except Exception as e:
+
         logging.error(f"Критическая ошибка: {e}")
